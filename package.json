@@ -1,0 +1,33 @@
+{
+  "name": "mern",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "devstart": "nodemon app.js",
+    "start": "node app.js",
+    "test": "jest --detectOpenHandles --forceExit"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/idanfadlon/MERN.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/idanfadlon/MERN/issues"
+  },
+  "homepage": "https://github.com/idanfadlon/MERN#readme",
+  "dependencies": {
+    "body-parser": "^1.20.1",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "mongoose": "^6.7.1"
+  },
+  "devDependencies": {
+    "jest": "^29.2.2",
+    "nodemon": "^2.0.20",
+    "supertest": "^6.3.1",
+    "typescript": "^4.9.5"
+  }
+}
