@@ -27,3 +27,6 @@ Content-Type: application/json
     "message": "this is my new message",
     "sender":"123456"
 }
+###
+
+POST http://localhost:3000/auth/login
