@@ -2,22 +2,25 @@ import request from 'supertest'
 import app from '../server'
 import mongoose from 'mongoose'
 import Post from '../models/post_model'
+import User from '../models/user_model'
 
 
-const newPostMessage = 'This is the new test post message'
-const newPostSender = '123456'
-// let newPostId =''
-const nonExistentsender ='idan'
-const updatedPostMessage = 'This is the updated post message'
+// const newPostMessage = 'This is the new test post message'
+// const newPostSender = '123456'
+// // let newPostId =''
+// const nonExistentsender ='idan'
+// const updatedPostMessage = 'This is the updated post message'
 
 const userEmail = "user1@gmail"
 const userPassword ="12345" 
 beforeAll(async()=>{
     await Post.remove()
+    await User.remove()
     })
 
 afterAll(async ()=>{
     await Post.remove()
+    await User.remove()
     mongoose.connection.close()
 })
 
@@ -35,6 +38,14 @@ describe("Auth Tests",()=>{
     
     test("Login test",async () => {
         const response = await request(app).post('/auth/login').send({
+            "email": userEmail,
+            "password": userPassword
+        })
+        expect(response.statusCode).toEqual(200)
+    })
+
+    test("Logout test",async () => {
+        const response = await request(app).post('/auth/logout').send({
             "email": userEmail,
             "password": userPassword
         })
