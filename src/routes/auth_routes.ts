@@ -6,7 +6,9 @@ router.post('/register',Auth.register)
 
 router.post('/login',Auth.login)
 
-router.post('/logout',Auth.logout)
+router.get('/refresh',Auth.refresh)
+
+router.get('/logout',Auth.logout)
 
 
 export= router
