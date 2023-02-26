@@ -6,6 +6,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const server_1 = __importDefault(require("./server"));
 const port = process.env.PORT;
 server_1.default.listen(port, () => {
-    console.log('server started on port ' + port);
+    console.log("server started on port " + port);
 });
 //# sourceMappingURL=app.js.map
