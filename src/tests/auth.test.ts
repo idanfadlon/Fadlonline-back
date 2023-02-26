@@ -4,7 +4,7 @@ import mongoose from "mongoose";
 import Post from "../models/post_model";
 import User from "../models/user_model";
 
-//TODO: implement refresh token time out test ,logout and wrong password
+//TODO: implement wrong password test
 const userEmail = "user1@gmail.com";
 const userPassword = "12345";
 let accessToken = "";
@@ -45,13 +45,13 @@ describe("Auth Tests", () => {
     refreshToken = response.body.refreshToken;
     expect(refreshToken).not.toBeNull();
   });
-  test("Using valid token test", async () => {
+  test("Sing valid token test", async () => {
     const response = await request(app)
       .get("/post")
       .set("Authorization", "JWT " + accessToken);
     expect(response.statusCode).toEqual(200);
   });
-  test("Using worng token test", async () => {
+  test("Sing worng token test", async () => {
     const response = await request(app)
       .get("/post")
       .set("Authorization", "JWT 1" + accessToken);
@@ -59,7 +59,7 @@ describe("Auth Tests", () => {
   });
 
   jest.setTimeout(30000);
-  test("token timeout test", async () => {
+  test("Token timeout test", async () => {
     await new Promise((r) => setTimeout(r, 10000));
     const response = await request(app)
       .get("/post")
@@ -67,11 +67,23 @@ describe("Auth Tests", () => {
     expect(response.statusCode).not.toEqual(200);
   });
 
+  test("Refresh token test", async () => {
+    let response = await request(app).get("/auth/refresh")
+      .set("Authorization", "JWT " + refreshToken);
+    expect(response.statusCode).toEqual(200);
+    const newAccessToken = response.body.accesstoken;
+    expect(newAccessToken).not.toBeNull();
+    const newRefreshToken = response.body.refreshToken;
+    expect(newRefreshToken).not.toBeNull();
+
+    response = await request(app).get("/post")
+      .set("Authorization", "JWT " + newRefreshToken);
+    expect(response.statusCode).toEqual(200);
+  });
+
+//FIXME:logout test faild JWT undifind
   test("Logout test", async () => {
-    const response = await request(app).post("/auth/logout").send({
-      email: userEmail,
-      password: userPassword,
-    });
+    const response = await request(app).get("/auth/logout").set("Authorization", "JWT " + refreshToken).send();
     expect(response.statusCode).toEqual(200);
   });
 });

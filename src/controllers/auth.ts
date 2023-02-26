@@ -7,28 +7,13 @@ function sendError(res: Response, error: string) {
     err: error,
   });
 }
-
+//FIXME:authHeader return JWT undefind
 function getTokenFromRequest(req: Request): string {
   const authHeader = req.headers["authorization"];
-  if (authHeader == null) return null;
+  if (authHeader == undefined) return undefined;
   return authHeader.split(" ")[1];
 }
-//TODO: delete this
-// async function createTokens(Id:string) {
-//     const accessToken = await jwt.sign(
-//         {'id': Id},
-//         process.env.ACCESS_TOKEN_SECRET,
-//         {'expiresIn':process.env.JWT_TOKEN_EXPIRATION}
-//     )
-//     const refreshToken = await jwt.sign(
-//         {'id': Id},
-//         process.env.REFRESH_TOKEN_SECRET,
-//     )
-//     return {'accesstoken': accessToken,'refreshtoken': refreshToken}
-// }
-// type tokenInfo = {
-//     id: string
-// }
+
 const register = async (req: Request, res: Response) => {
   const email = req.body.email;
   const password = req.body.password;
@@ -107,14 +92,14 @@ const login = async (req: Request, res: Response) => {
 
 const refresh = async (req: Request, res: Response) => {
   const refreshToken = getTokenFromRequest(req);
-  if (refreshToken == null) return sendError(res, "authentication missing");
+  if (refreshToken == undefined) return sendError(res, "authentication missing");
 
   try {
     const user = await jwt.verify(
       refreshToken,
       process.env.REFRESH_TOKEN_SECRET
     );
-    const userObj = await User.findById({ id: user["id"] });
+    const userObj = await User.findById({ id: user["_id"] });
     if (userObj == null) return sendError(res, "fail validating token");
 
     if (!userObj.refresh_tokens.includes(refreshToken)) {
@@ -124,13 +109,13 @@ const refresh = async (req: Request, res: Response) => {
     }
 
     const newAccessToken = await jwt.sign(
-      { id: user["id"] },
+      { id: user["_id"] },
       process.env.ACCESS_TOKEN_SECRET,
       { expiresIn: process.env.JWT_TOKEN_EXPIRATION }
     );
 
     const newRefreshToken = await jwt.sign(
-      { id: user["id"] },
+      { id: user["_id"] },
       process.env.REFRESH_TOKEN_SECRET
     );
 
@@ -145,10 +130,10 @@ const refresh = async (req: Request, res: Response) => {
     return sendError(res, "fail validating token");
   }
 };
-//TODO:implement this
+//BUG:authorization headers return JWT undifiend insted JWT only
 const logout = async (req: Request, res: Response) => {
-  const authHeaders = req.headers["authorization"];
-  const refreshToken = authHeaders && authHeaders.split(" ")[1];
+  const authHeaders = req.headers['authorization'];
+  const refreshToken = authHeaders && authHeaders.split(' ')[1];
   if (refreshToken == null) return sendError(res, "authentication missing");
   try {
     const user = await jwt.verify(
@@ -185,7 +170,7 @@ const authenticateMiddleware = async (
   if (token == null) return sendError(res, "authentication missing");
   try {
     const user = await jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-    req.body.userId = user["id"];
+    req.body.userId = user["_id"];
     console.log("token user: " + user);
     next();
   } catch (err) {
