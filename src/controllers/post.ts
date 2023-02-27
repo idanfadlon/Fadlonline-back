@@ -35,11 +35,11 @@ const addNewPost = async (req: Request, res: Response) => {
 
   try {
     const newPost = await post.save();
-    console.log("save post in db");
-    res.status(200).send(newPost);
+    console.log("save post in db")
+    res.status(200).send(newPost)
   } catch (err) {
     console.log("fail to save post in db");
-    res.status(400).send({ error: "fail adding new post to db" });
+    res.status(400).send({ error: "fail adding new post to db" })
   }
 };
 
@@ -48,11 +48,11 @@ const updatePostById = async (req: Request, res: Response) => {
     const post = await Post.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
     });
-    res.status(200).send(post);
+    res.status(200).send(post)
   } catch (err) {
-    console.log("fail to update post in db");
-    res.status(400).send({ error: "fail adding the updated post to db" });
+    console.log("fail to update post in db")
+    res.status(400).send({ error: "fail adding the updated post to db" })
   }
 };
 
-export = { getAllPosts, addNewPost, getPostById, updatePostById };
+export = { getAllPosts, addNewPost, getPostById, updatePostById }

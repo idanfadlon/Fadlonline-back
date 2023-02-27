@@ -15,6 +15,8 @@ db.once("open", () => {
     console.log("connected to mongo DB");
 });
 const app = (0, express_1.default)();
+const http_1 = __importDefault(require("http"));
+const server = http_1.default.createServer(app);
 const body_parser_1 = __importDefault(require("body-parser"));
 app.use(body_parser_1.default.urlencoded({ extended: true, limit: "1mb" }));
 app.use(body_parser_1.default.json());
@@ -22,5 +24,5 @@ const auth_routes_1 = __importDefault(require("./routes/auth_routes"));
 app.use("/auth", auth_routes_1.default);
 const post_routes_1 = __importDefault(require("./routes/post_routes"));
 app.use("/post", post_routes_1.default);
-module.exports = app;
+module.exports = server;
 //# sourceMappingURL=server.js.map

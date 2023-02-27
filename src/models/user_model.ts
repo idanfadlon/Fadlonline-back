@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose from "mongoose"
 
 const userSchema = new mongoose.Schema({
   email: {
@@ -12,6 +12,6 @@ const userSchema = new mongoose.Schema({
   refresh_tokens: {
     type: [String],
   },
-});
+})
 
-export = mongoose.model("User", userSchema);
+export = mongoose.model("User", userSchema)

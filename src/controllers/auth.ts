@@ -92,15 +92,15 @@ const login = async (req: Request, res: Response) => {
 
 const refresh = async (req: Request, res: Response) => {
   const refreshToken = getTokenFromRequest(req);
-  if (refreshToken == undefined) return sendError(res, "authentication missing");
+  if (refreshToken == undefined) return sendError(res, "authentication missing")
 
   try {
     const user = await jwt.verify(
       refreshToken,
       process.env.REFRESH_TOKEN_SECRET
-    );
+    )
     const userObj = await User.findById({ id: user["_id"] });
-    if (userObj == null) return sendError(res, "fail validating token");
+    if (userObj == null) return sendError(res, "fail validating token")
 
     if (!userObj.refresh_tokens.includes(refreshToken)) {
       userObj.refresh_tokens = [];
@@ -112,12 +112,12 @@ const refresh = async (req: Request, res: Response) => {
       { id: user["_id"] },
       process.env.ACCESS_TOKEN_SECRET,
       { expiresIn: process.env.JWT_TOKEN_EXPIRATION }
-    );
+    )
 
     const newRefreshToken = await jwt.sign(
       { id: user["_id"] },
       process.env.REFRESH_TOKEN_SECRET
-    );
+    )
 
     userObj.refresh_tokens[userObj.refresh_tokens.indexOf(refreshToken)];
     await userObj.save();
@@ -134,28 +134,28 @@ const refresh = async (req: Request, res: Response) => {
 const logout = async (req: Request, res: Response) => {
   const authHeaders = req.headers['authorization'];
   const refreshToken = authHeaders && authHeaders.split(' ')[1];
-  if (refreshToken == null) return sendError(res, "authentication missing");
+  if (refreshToken == null) return sendError(res, "authentication missing")
   try {
     const user = await jwt.verify(
       refreshToken,
       process.env.REFRESH_TOKEN_SECRET
     );
-    const userObj = await User.findById({ id: user["id"] });
-    if (userObj == null) return sendError(res, "fail validating token");
+    const userObj = await User.findById({ id: user["id"] })
+    if (userObj == null) return sendError(res, "fail validating token")
 
     if (!userObj.refresh_tokens.includes(refreshToken)) {
-      userObj.refresh_tokens = [];
-      await userObj.save();
-      return sendError(res, "fail validating token");
+      userObj.refresh_tokens = []
+      await userObj.save()
+      return sendError(res, "fail validating token")
     }
     userObj.refresh_tokens.slice(
       userObj.refresh_tokens.indexOf(refreshToken),
       1
-    );
-    await userObj.save();
-    res.status(200).send();
+    )
+    await userObj.save()
+    res.status(200).send()
   } catch (err) {
-    return sendError(res, "fail validating token");
+    return sendError(res, "fail validating token")
   }
 };
 
@@ -165,17 +165,17 @@ const authenticateMiddleware = async (
   res: Response,
   next: NextFunction
 ) => {
-  const authHeaders = req.headers["authorization"];
-  const token = authHeaders && authHeaders.split(" ")[1];
-  if (token == null) return sendError(res, "authentication missing");
+  const authHeaders = req.headers["authorization"]
+  const token = authHeaders && authHeaders.split(" ")[1]
+  if (token == null) return sendError(res, "authentication missing")
   try {
-    const user = await jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-    req.body.userId = user["_id"];
-    console.log("token user: " + user);
+    const user = await jwt.verify(token, process.env.ACCESS_TOKEN_SECRET)
+    req.body.userId = user["_id"]
+    console.log("token user: " + user)
     next();
   } catch (err) {
-    return sendError(res, "fail validating token");
+    return sendError(res, "fail validating token")
   }
 };
 
-export = { login, refresh, register, logout, authenticateMiddleware };
+export = { login, refresh, register, logout, authenticateMiddleware }

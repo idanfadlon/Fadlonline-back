@@ -13,7 +13,8 @@ db.once("open", () => {
 });
 
 const app = express();
-
+import http from 'http'
+const server = http.createServer(app)
 import bodyParser from "body-parser";
 app.use(bodyParser.urlencoded({ extended: true, limit: "1mb" }));
 app.use(bodyParser.json());
@@ -24,4 +25,4 @@ app.use("/auth", authRouter);
 import postRouter from "./routes/post_routes";
 app.use("/post", postRouter);
 
-export = app;
+export = server;
