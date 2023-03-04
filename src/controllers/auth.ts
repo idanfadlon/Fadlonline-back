@@ -1,7 +1,7 @@
-import User from "../models/user_model";
-import { NextFunction, Request, Response } from "express";
-import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
+import User from "../models/user_model"
+import { NextFunction, Request, Response } from "express"
+import bcrypt from "bcrypt"
+import jwt from "jsonwebtoken"
 
 function sendError(res: Response, error: string) {
   res.status(400).send({
@@ -18,15 +18,15 @@ function getTokenFromRequest(req: Request): string {
 
 
 const register = async (req: Request, res: Response) => {
-  const email = req.body.email;
-  const password = req.body.password;
+  const email = req.body.email
+  const password = req.body.password
 
   if (email == null || password == null) {
-    return sendError(res, "The email or password are empty please fill");
+    return sendError(res, "The email or password are empty please fill")
   }
 
   try {
-    const user = await User.findOne({ email: email });
+    const user = await User.findOne({ email: email })
     if (user != null) {
       return sendError(
         res,
@@ -34,38 +34,38 @@ const register = async (req: Request, res: Response) => {
       );
     }
   } catch (err) {
-    console.log("error: " + err);
-    return sendError(res, "email check failed");
+    console.log("error: " + err)
+    return sendError(res, "email check failed")
   }
 
   try {
     const salt = await bcrypt.genSalt(10);
-    const encPass = await bcrypt.hash(password, salt);
+    const encPass = await bcrypt.hash(password, salt)
     let newUser = new User({
       email: email,
       password: encPass,
     });
-    newUser = await newUser.save();
-    res.status(200).send(newUser); //TODO: change implementation
+    newUser = await newUser.save()
+    res.status(200).send(newUser)
   } catch (err) {
-    sendError(res, "faild");
+    sendError(res, "faild")
   }
 }
 
 const login = async (req: Request, res: Response) => {
-  const email = req.body.email;
-  const password = req.body.password;
+  const email = req.body.email
+  const password = req.body.password
 
   if (email == null || password == null) {
-    return sendError(res, "The email or password are empty please fill");
+    return sendError(res, "The email or password are empty please fill")
   }
   try {
-    const user = await User.findOne({ email: email });
+    const user = await User.findOne({ email: email })
     if (user == null) {
-      return sendError(res, "incorrect email or password");
+      return sendError(res, "incorrect email or password")
     }
 
-    const match = await bcrypt.compare(password, user.password);
+    const match = await bcrypt.compare(password, user.password)
     if (!match) {
       return sendError(res, "incorrect email or password");
     }
@@ -80,7 +80,7 @@ const login = async (req: Request, res: Response) => {
       process.env.REFRESH_TOKEN_SECRET
     );
 
-    if (user.refresh_tokens == null) user.refresh_tokens = [refreshToken];
+    if (user.refresh_tokens == null) user.refresh_tokens = [refreshToken]
     else user.refresh_tokens.push(refreshToken);
     await user.save();
 
@@ -89,8 +89,8 @@ const login = async (req: Request, res: Response) => {
       refreshtoken: refreshToken,
     });
   } catch (err) {
-    console.log("error: " + err);
-    return sendError(res, "email check failed");
+    console.log("error: " + err)
+    return sendError(res, "email check failed")
   }
 }
 
@@ -103,15 +103,15 @@ const refresh = async (req: Request, res: Response) => {
       refreshToken,
       process.env.REFRESH_TOKEN_SECRET
     )
-  const payload = user as { [key: string]: any };
-  const userId = payload.id;
-    const userObj = await User.findById(userId);
+  const payload = user as { [key: string]: any }
+  const userId = payload.id
+    const userObj = await User.findById(userId)
     if (userObj == null) return sendError(res, "fail validating token")
 
     if (!userObj.refresh_tokens.includes(refreshToken)) {
-      userObj.refresh_tokens = [];
-      await userObj.save();
-      return sendError(res, "fail validating token");
+      userObj.refresh_tokens = []
+      await userObj.save()
+      return sendError(res, "fail validating token")
     }
 
     const newAccessToken = await jwt.sign(
@@ -125,7 +125,7 @@ const refresh = async (req: Request, res: Response) => {
       process.env.REFRESH_TOKEN_SECRET
     )
 
-    userObj.refresh_tokens[userObj.refresh_tokens.indexOf(refreshToken)];
+    userObj.refresh_tokens[userObj.refresh_tokens.indexOf(refreshToken)]
     await userObj.save();
 
     return res.status(200).send({
@@ -133,7 +133,7 @@ const refresh = async (req: Request, res: Response) => {
       refreshToken: newRefreshToken,
     });
   } catch (err) {
-    return sendError(res, "fail validating token");
+    return sendError(res, "fail validating token")
   }
 }
 
@@ -145,8 +145,8 @@ const logout = async (req: Request, res: Response) => {
       refreshToken,
       process.env.REFRESH_TOKEN_SECRET
     )
-  const payload = user as { [key: string]: any };
-  const userId = payload.id;
+  const payload = user as { [key: string]: any }
+  const userId = payload.id
   const userObj = await User.findById(userId)
     if (userObj == null) return sendError(res, "fail validating token")
 

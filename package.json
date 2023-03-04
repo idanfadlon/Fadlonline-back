@@ -9,8 +9,7 @@
     "lint": "eslint . --ext .ts",
     "devstart": "nodemon ./src/app.ts",
     "authTest": "tsc && jest --detectOpenHandles --forceExit ./dist/src/tests/auth.test.js",
-    "postTest": "tsc && jest --detectOpenHandles --forceExit ./dist/src/tests/post.test.js",
-    "socketTest": "tsc && jest --detectOpenHandles --forceExit ./dist/src/tests/socket.test.js"
+    "postTest": "tsc && jest --detectOpenHandles --forceExit ./dist/src/tests/post.test.js"
   },
   "repository": {
     "type": "git",

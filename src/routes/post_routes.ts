@@ -2,7 +2,6 @@ import express from "express"
 const router = express.Router()
 import Post from "../controllers/post"
 import Auth from "../controllers/auth"
-//BUG:tests falid because authenticateMiddleware faild
 router.get("/",Post.getAllPosts)
 
 router.get("/:id", Auth.authenticateMiddleware, Post.getPostById)
