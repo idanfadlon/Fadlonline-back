@@ -155,10 +155,7 @@ const logout = async (req: Request, res: Response) => {
       await userObj.save()
       return sendError(res, "fail validating token")
     }
-    userObj.refresh_tokens.slice(
-      userObj.refresh_tokens.indexOf(refreshToken),
-      1
-    )
+    userObj.refresh_tokens.slice(userObj.refresh_tokens.indexOf(refreshToken),1)
     await userObj.save()
     res.status(200).send()
   } catch (err) {

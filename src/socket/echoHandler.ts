@@ -1,6 +1,6 @@
 export = (io: any, socket: any) => {
   const echoHandler = (payload) => {
-    socket.emit("echo", payload);
+    socket.emit("echo:echo", payload);
   };
   const readHandler = (payload) => {
     // ...
