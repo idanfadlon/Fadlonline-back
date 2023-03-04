@@ -12,6 +12,16 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 const post_model_1 = __importDefault(require("../models/post_model"));
+const getAllPostsEvent = () => __awaiter(void 0, void 0, void 0, function* () {
+    console.log("");
+    try {
+        const posts = yield post_model_1.default.find();
+        return { status: 'OK', data: posts };
+    }
+    catch (err) {
+        return { status: 'FAIL', data: "" };
+    }
+});
 const getAllPosts = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         let posts = {};
@@ -41,7 +51,7 @@ const addNewPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     console.log(req.body);
     const post = new post_model_1.default({
         message: req.body.message,
-        sender: req.body.sender,
+        sender: req.body.sender
     });
     try {
         const newPost = yield post.save();
@@ -55,9 +65,7 @@ const addNewPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
 });
 const updatePostById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const post = yield post_model_1.default.findByIdAndUpdate(req.params.id, req.body, {
-            new: true,
-        });
+        const post = yield post_model_1.default.findByIdAndUpdate(req.params.id, req.body, { new: true });
         res.status(200).send(post);
     }
     catch (err) {
