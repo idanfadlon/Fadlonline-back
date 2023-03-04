@@ -2,17 +2,20 @@ import User from "../models/user_model";
 import { NextFunction, Request, Response } from "express";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+
 function sendError(res: Response, error: string) {
   res.status(400).send({
     err: error,
   });
 }
-//FIXME:authHeader return JWT undefind
+
 function getTokenFromRequest(req: Request): string {
-  const authHeader = req.headers["authorization"];
-  if (authHeader == undefined) return undefined;
-  return authHeader.split(" ")[1];
+  const authHeader = req.headers["authorization"]
+  if (authHeader == undefined) return undefined
+  return authHeader.split(" ")[1]
 }
+
+
 
 const register = async (req: Request, res: Response) => {
   const email = req.body.email;
@@ -47,7 +50,8 @@ const register = async (req: Request, res: Response) => {
   } catch (err) {
     sendError(res, "faild");
   }
-};
+}
+
 const login = async (req: Request, res: Response) => {
   const email = req.body.email;
   const password = req.body.password;
@@ -88,10 +92,10 @@ const login = async (req: Request, res: Response) => {
     console.log("error: " + err);
     return sendError(res, "email check failed");
   }
-};
+}
 
 const refresh = async (req: Request, res: Response) => {
-  const refreshToken = getTokenFromRequest(req);
+  const refreshToken =  getTokenFromRequest(req)
   if (refreshToken == undefined) return sendError(res, "authentication missing")
 
   try {
@@ -99,7 +103,9 @@ const refresh = async (req: Request, res: Response) => {
       refreshToken,
       process.env.REFRESH_TOKEN_SECRET
     )
-    const userObj = await User.findById({ id: user["_id"] });
+  const payload = user as { [key: string]: any };
+  const userId = payload.id;
+    const userObj = await User.findById(userId);
     if (userObj == null) return sendError(res, "fail validating token")
 
     if (!userObj.refresh_tokens.includes(refreshToken)) {
@@ -109,13 +115,13 @@ const refresh = async (req: Request, res: Response) => {
     }
 
     const newAccessToken = await jwt.sign(
-      { id: user["_id"] },
+      { id: userId },
       process.env.ACCESS_TOKEN_SECRET,
       { expiresIn: process.env.JWT_TOKEN_EXPIRATION }
     )
 
     const newRefreshToken = await jwt.sign(
-      { id: user["_id"] },
+      { id: userId },
       process.env.REFRESH_TOKEN_SECRET
     )
 
@@ -129,18 +135,19 @@ const refresh = async (req: Request, res: Response) => {
   } catch (err) {
     return sendError(res, "fail validating token");
   }
-};
-//BUG:authorization headers return JWT undifiend insted JWT only
+}
+
 const logout = async (req: Request, res: Response) => {
-  const authHeaders = req.headers['authorization'];
-  const refreshToken = authHeaders && authHeaders.split(' ')[1];
-  if (refreshToken == null) return sendError(res, "authentication missing")
+  const refreshToken =  getTokenFromRequest(req)
+  if (refreshToken == undefined) return sendError(res, "authentication missing")
   try {
     const user = await jwt.verify(
       refreshToken,
       process.env.REFRESH_TOKEN_SECRET
-    );
-    const userObj = await User.findById({ id: user["id"] })
+    )
+  const payload = user as { [key: string]: any };
+  const userId = payload.id;
+  const userObj = await User.findById(userId)
     if (userObj == null) return sendError(res, "fail validating token")
 
     if (!userObj.refresh_tokens.includes(refreshToken)) {
@@ -157,17 +164,11 @@ const logout = async (req: Request, res: Response) => {
   } catch (err) {
     return sendError(res, "fail validating token")
   }
-};
+}
 
-//FIXME:use function
-const authenticateMiddleware = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  const authHeaders = req.headers["authorization"]
-  const token = authHeaders && authHeaders.split(" ")[1]
-  if (token == null) return sendError(res, "authentication missing")
+const authenticateMiddleware = async (req: Request, res: Response, next: NextFunction) => {
+  const token =  getTokenFromRequest(req)
+  if (token == undefined) return sendError(res, "authentication missing")
   try {
     const user = await jwt.verify(token, process.env.ACCESS_TOKEN_SECRET)
     req.body.userId = user["_id"]
@@ -176,6 +177,6 @@ const authenticateMiddleware = async (
   } catch (err) {
     return sendError(res, "fail validating token")
   }
-};
+}
 
 export = { login, refresh, register, logout, authenticateMiddleware }

@@ -4,11 +4,11 @@ import mongoose from "mongoose";
 import Post from "../models/post_model";
 import User from "../models/user_model";
 
-//TODO: implement wrong password test
 const userEmail = "user1@gmail.com";
 const userPassword = "12345";
 let accessToken = "";
 let refreshToken = "";
+
 beforeAll(async () => {
   await Post.remove();
   await User.remove();
@@ -42,48 +42,53 @@ describe("Auth Tests", () => {
     expect(response.statusCode).toEqual(200);
     accessToken = response.body.accesstoken;
     expect(accessToken).not.toBeNull();
-    refreshToken = response.body.refreshToken;
+    refreshToken = response.body.refreshtoken;
     expect(refreshToken).not.toBeNull();
   });
-  test("Sing valid token test", async () => {
-    const response = await request(app)
-      .get("/post")
-      .set("Authorization", "JWT " + accessToken);
-    expect(response.statusCode).toEqual(200);
-  });
-  test("Sing worng token test", async () => {
-    const response = await request(app)
-      .get("/post")
-      .set("Authorization", "JWT 1" + accessToken);
+
+  test("Worng password login test", async () => {
+    const response = await request(app).post("/auth/login").send({
+      email: userEmail,
+      password: userPassword+'6',
+    });
     expect(response.statusCode).not.toEqual(200);
+    const uAccessToken = response.body.accesstoken
+    expect(uAccessToken).toBeUndefined()
+  });
+
+
+  test("Sing valid token test", async () => {
+    const response = await request(app).get("/post").set("Authorization", "JWT " + accessToken)
+    expect(response.statusCode).toEqual(200)
+  });
+
+  test("Sing worng token test", async () => {
+    const response = await request(app).get("/post").set("Authorization", "JWT 1" + accessToken)
+    expect(response.statusCode).not.toEqual(200)
   });
 
   jest.setTimeout(30000);
   test("Token timeout test", async () => {
-    await new Promise((r) => setTimeout(r, 10000));
-    const response = await request(app)
-      .get("/post")
-      .set("Authorization", "JWT " + accessToken);
-    expect(response.statusCode).not.toEqual(200);
+    await new Promise((r) => setTimeout(r, 20000))
+    const response = await request(app).get("/post").set("Authorization", "JWT " + accessToken)
+    expect(response.statusCode).not.toEqual(200)
   });
 
   test("Refresh token test", async () => {
-    let response = await request(app).get("/auth/refresh")
-      .set("Authorization", "JWT " + refreshToken);
-    expect(response.statusCode).toEqual(200);
-    const newAccessToken = response.body.accesstoken;
+    let response = await request(app).get("/auth/refresh").set("Authorization", "JWT " + refreshToken)
+    expect(response.statusCode).toEqual(200)
+    const newAccessToken = response.body.accesstoken
     expect(newAccessToken).not.toBeNull();
-    const newRefreshToken = response.body.refreshToken;
-    expect(newRefreshToken).not.toBeNull();
+    const newRefreshToken = response.body.refreshToken
+    expect(newRefreshToken).not.toBeNull()
 
-    response = await request(app).get("/post")
-      .set("Authorization", "JWT " + newRefreshToken);
-    expect(response.statusCode).toEqual(200);
+    response = await request(app).get("/post").set("Authorization", "JWT " + newAccessToken)
+    expect(response.statusCode).toEqual(200)
   });
 
-//FIXME:logout test faild JWT undifind
-  test("Logout test", async () => {
-    const response = await request(app).get("/auth/logout").set("Authorization", "JWT " + refreshToken).send();
-    expect(response.statusCode).toEqual(200);
-  });
+test("Logout test",async ()=>{
+  const response = await request(app).get('/auth/logout').set('Authorization', 'JWT ' + refreshToken)
+  expect(response.statusCode).toEqual(200)
+}) 
+
 });

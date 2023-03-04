@@ -2,15 +2,37 @@ import request from "supertest";
 import app from "../server";
 import mongoose from "mongoose";
 import Post from "../models/post_model";
+import User from "../models/user_model";
 
 const newPostMessage = "This is the new test post message";
-const newPostSender = "123456";
+let newPostSender = "";
 let newPostId = "";
 const nonExistentsender = "idan";
 const updatedPostMessage = "This is the updated post message";
+const userEmail = "user1@gmail.com";
+const userPassword = "12345";
+let accessToken = "";
 beforeAll(async () => {
   await Post.remove();
+  await User.remove();
+  const response = await request().post('/auth/register').send({
+    "email": userEmail,
+    "password":userPassword
+  })
+  newPostSender = response.body._id
 });
+
+async function loginUser() {
+  const response = await request(app).post('/auth/login').send({
+      "email": userEmail,
+      "password": userPassword 
+  })
+  accessToken = response.body.accessToken
+}
+
+beforeEach(async ()=>{
+  await loginUser()
+})
 
 afterAll(async () => {
   await Post.remove();
