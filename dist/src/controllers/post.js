@@ -73,5 +73,5 @@ const updatePostById = (req, res) => __awaiter(void 0, void 0, void 0, function*
         res.status(400).send({ error: "fail adding the updated post to db" });
     }
 });
-module.exports = { getAllPosts, addNewPost, getPostById, updatePostById };
+module.exports = { getAllPosts, addNewPost, getPostById, updatePostById, getAllPostsEvent };
 //# sourceMappingURL=post.js.map

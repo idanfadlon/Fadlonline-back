@@ -15,6 +15,7 @@ db.once("open", () => {
 const app = express()
 import http from 'http'
 const server = http.createServer(app)
+console.log("create server")
 import bodyParser from "body-parser"
 app.use(bodyParser.urlencoded({ extended: true, limit: "1mb" }))
 app.use(bodyParser.json())
@@ -24,8 +25,8 @@ app.use("/auth", authRouter)
 
 import postRouter from "./routes/post_routes"
 app.use("/post", postRouter)
-import swaggerUI from "swagger-ui-express"
-import swaggerJsDoc from "swagger-jsdoc"
+import swaggerUI from  "swagger-ui-express"
+import swaggerJsDoc from  "swagger-jsdoc"
 if(process.env.NODE_ENV == "development"){
   const options ={
     definition: {
